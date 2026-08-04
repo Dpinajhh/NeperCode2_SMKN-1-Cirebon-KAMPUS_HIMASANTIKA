@@ -1,265 +1,183 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { animate, stagger, createTimeline } from "animejs";
 import Image from "next/image";
 
-/* ════════════════════════════════════════════════════════
-   DATA
-   ════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   DATA — Bahasa Indonesia
+   ══════════════════════════════════════════════════════════ */
 
 const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Divisions", href: "#divisions" },
-  { label: "Programs", href: "#programs" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Achievements", href: "#stats" },
-  { label: "Contact", href: "#contact" },
-];
-
-const FEATURES = [
-  {
-    title: "Innovation",
-    desc: "We foster a culture of creative problem-solving and disruptive thinking to push boundaries in technology.",
-    icon: (
-      <svg viewBox="0 0 48 48" fill="none" className="w-10 h-10">
-        <rect width="48" height="48" rx="14" fill="url(#g1)" fillOpacity=".12" />
-        <path d="M24 14v4m-7.07-.93 2.83 2.83M14 24h4m-.93 7.07 2.83-2.83M24 30v4m4.24-6.76 2.83 2.83M30 24h4m-6.76-7.07 2.83-2.83" stroke="url(#g1)" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="24" cy="24" r="4" fill="url(#g1)" />
-        <defs><linearGradient id="g1" x1="0" y1="0" x2="48" y2="48"><stop stopColor="#2563EB" /><stop offset="1" stopColor="#38BDF8" /></linearGradient></defs>
-      </svg>
-    ),
-    gradient: "from-blue-500/10 to-cyan-500/10",
-  },
-  {
-    title: "Technology",
-    desc: "Access cutting-edge tools, workshops, and resources across multiple technology domains and stacks.",
-    icon: (
-      <svg viewBox="0 0 48 48" fill="none" className="w-10 h-10">
-        <rect width="48" height="48" rx="14" fill="url(#g2)" fillOpacity=".12" />
-        <path d="M17 20l4 4-4 4m6 0h4" stroke="url(#g2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="12" y="14" width="24" height="20" rx="3" stroke="url(#g2)" strokeWidth="2" />
-        <defs><linearGradient id="g2" x1="0" y1="0" x2="48" y2="48"><stop stopColor="#38BDF8" /><stop offset="1" stopColor="#2563EB" /></linearGradient></defs>
-      </svg>
-    ),
-    gradient: "from-cyan-500/10 to-blue-500/10",
-  },
-  {
-    title: "Leadership",
-    desc: "Develop essential leadership, communication, and project management skills for the tech industry.",
-    icon: (
-      <svg viewBox="0 0 48 48" fill="none" className="w-10 h-10">
-        <rect width="48" height="48" rx="14" fill="url(#g3)" fillOpacity=".12" />
-        <path d="M24 14l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" stroke="url(#g3)" strokeWidth="2" strokeLinejoin="round" />
-        <defs><linearGradient id="g3" x1="0" y1="0" x2="48" y2="48"><stop stopColor="#8B5CF6" /><stop offset="1" stopColor="#2563EB" /></linearGradient></defs>
-      </svg>
-    ),
-    gradient: "from-purple-500/10 to-blue-500/10",
-  },
-  {
-    title: "Collaboration",
-    desc: "Join a vibrant community where diverse ideas converge to create impactful real-world solutions.",
-    icon: (
-      <svg viewBox="0 0 48 48" fill="none" className="w-10 h-10">
-        <rect width="48" height="48" rx="14" fill="url(#g4)" fillOpacity=".12" />
-        <circle cx="20" cy="20" r="4" stroke="url(#g4)" strokeWidth="2" />
-        <circle cx="28" cy="20" r="4" stroke="url(#g4)" strokeWidth="2" />
-        <path d="M14 32c0-3.3 2.7-6 6-6h8c3.3 0 6 2.7 6 6" stroke="url(#g4)" strokeWidth="2" strokeLinecap="round" />
-        <defs><linearGradient id="g4" x1="0" y1="0" x2="48" y2="48"><stop stopColor="#2563EB" /><stop offset="1" stopColor="#8B5CF6" /></linearGradient></defs>
-      </svg>
-    ),
-    gradient: "from-blue-500/10 to-purple-500/10",
-  },
+  { label: "Tentang", href: "#about" },
+  { label: "Divisi", href: "#divisions" },
+  { label: "Program", href: "#programs" },
+  { label: "Galeri", href: "#gallery" },
+  { label: "Kontak", href: "#contact" },
 ];
 
 const DIVISIONS = [
-  { title: "Programming", desc: "Master algorithms, data structures, and competitive programming.", icon: "💻", size: "bento-large" },
-  { title: "UI/UX Design", desc: "Craft beautiful, user-centered digital experiences.", icon: "🎨", size: "bento-wide" },
-  { title: "Artificial Intelligence", desc: "Explore ML, deep learning, NLP, and computer vision.", icon: "🧠", size: "" },
-  { title: "Cybersecurity", desc: "Learn ethical hacking, network security, and cryptography.", icon: "🛡️", size: "bento-tall" },
-  { title: "Web Development", desc: "Build modern full-stack web applications with cutting-edge frameworks.", icon: "🌐", size: "bento-wide" },
-  { title: "Mobile Development", desc: "Create native and cross-platform mobile apps.", icon: "📱", size: "" },
-  { title: "Multimedia", desc: "Video production, motion graphics, 3D modeling, and visual storytelling.", icon: "🎬", size: "" },
-  { title: "Public Relations", desc: "Strategic communication, branding, and community engagement.", icon: "📣", size: "" },
-  { title: "Research & Development", desc: "Push the boundaries of technology through academic research and innovation.", icon: "🔬", size: "bento-wide" },
-  { title: "Entrepreneurship", desc: "Build startups, develop business acumen, and launch tech ventures.", icon: "🚀", size: "" },
+  { title: "Pemrograman", desc: "Menguasai algoritma, struktur data, dan pemrograman kompetitif." },
+  { title: "Desain UI/UX", desc: "Merancang pengalaman digital yang berpusat pada pengguna." },
+  { title: "Kecerdasan Buatan", desc: "Machine learning, deep learning, NLP, dan computer vision." },
+  { title: "Keamanan Siber", desc: "Ethical hacking, keamanan jaringan, dan sistem kriptografi." },
+  { title: "Pengembangan Web", desc: "Aplikasi web full-stack dengan framework dan arsitektur modern." },
+  { title: "Pengembangan Mobile", desc: "Aplikasi native dan cross-platform untuk iOS dan Android." },
+  { title: "Multimedia", desc: "Produksi video, motion graphics, dan visual storytelling." },
+  { title: "Hubungan Masyarakat", desc: "Komunikasi strategis, branding, dan pembangunan komunitas." },
+  { title: "Riset & Pengembangan", desc: "Mendorong inovasi melalui penelitian akademis dan teknologi." },
+  { title: "Kewirausahaan", desc: "Membangun startup, strategi bisnis, dan usaha teknologi." },
 ];
 
 const PROGRAMS = [
-  { title: "Workshops", desc: "Hands-on technical sessions covering everything from Git fundamentals to cloud architecture.", icon: "🛠️", period: "Monthly" },
-  { title: "Bootcamps", desc: "Intensive multi-week programs in web dev, mobile, AI, and cybersecurity.", icon: "⚡", period: "Quarterly" },
-  { title: "Hackathons", desc: "48-hour innovation sprints where teams build solutions to real-world challenges.", icon: "🏆", period: "Bi-Annual" },
-  { title: "Tech Seminars", desc: "Industry experts share insights on emerging technologies and career development.", icon: "🎤", period: "Monthly" },
-  { title: "Competitions", desc: "Represent HIMASANTIKA in national and international coding and design contests.", icon: "🥇", period: "Ongoing" },
-  { title: "Study Clubs", desc: "Weekly peer-learning groups focused on specific domains and technologies.", icon: "📚", period: "Weekly" },
-  { title: "Community Service", desc: "Tech literacy programs and digital empowerment initiatives for local communities.", icon: "❤️", period: "Semester" },
-  { title: "Technology Festivals", desc: "Large-scale tech showcases featuring demos, speakers, competitions, and networking.", icon: "🎉", period: "Annual" },
+  { title: "Workshop", desc: "Sesi teknis langsung dari dasar Git hingga arsitektur cloud.", period: "Bulanan" },
+  { title: "Bootcamp", desc: "Program intensif multi-minggu di bidang web, mobile, AI, dan keamanan siber.", period: "Triwulan" },
+  { title: "Hackathon", desc: "Sprint inovasi 48 jam membangun solusi untuk tantangan dunia nyata.", period: "Semester" },
+  { title: "Seminar Teknologi", desc: "Pakar industri berbagi wawasan tentang teknologi terkini.", period: "Bulanan" },
+  { title: "Kompetisi", desc: "Kontes coding, desain, dan inovasi skala nasional dan internasional.", period: "Berkelanjutan" },
+  { title: "Study Club", desc: "Kelompok belajar mingguan yang fokus pada domain teknologi tertentu.", period: "Mingguan" },
+  { title: "Pengabdian Masyarakat", desc: "Literasi digital dan pemberdayaan teknologi untuk komunitas lokal.", period: "Semester" },
+  { title: "Festival Teknologi", desc: "Pameran besar dengan demo, pembicara, dan jaringan profesional.", period: "Tahunan" },
 ];
 
 const STATS = [
-  { value: 500, suffix: "+", label: "Active Members" },
-  { value: 120, suffix: "+", label: "Events Held" },
-  { value: 85, suffix: "+", label: "Achievements" },
-  { value: 40, suffix: "+", label: "Collaborations" },
-  { value: 2000, suffix: "+", label: "Alumni Network" },
+  { value: 500, suffix: "+", label: "Anggota Aktif" },
+  { value: 120, suffix: "+", label: "Acara Terselenggara" },
+  { value: 85, suffix: "+", label: "Prestasi" },
+  { value: 40, suffix: "+", label: "Kolaborasi" },
+  { value: 2000, suffix: "+", label: "Jaringan Alumni" },
 ];
 
 const GALLERY_ITEMS = [
-  { src: "/gallery/hackathon.png", title: "National Hackathon 2025", category: "Competitions", tall: true },
-  { src: "/gallery/workshop.png", title: "Full-Stack Workshop", category: "Workshops", tall: false },
-  { src: "/gallery/collaboration.png", title: "Team Brainstorming", category: "Events", tall: false },
-  { src: "/gallery/seminar.png", title: "AI & Future Tech Seminar", category: "Events", tall: true },
-  { src: "/gallery/competition.png", title: "Regional Champions", category: "Competitions", tall: false },
-  { src: "/gallery/community.png", title: "Digital Literacy Drive", category: "Community", tall: true },
+  { src: "/gallery/hackathon.png", title: "Hackathon Nasional 2025", category: "Kompetisi" },
+  { src: "/gallery/workshop.png", title: "Workshop Full-Stack", category: "Workshop" },
+  { src: "/gallery/collaboration.png", title: "Kolaborasi Lintas Divisi", category: "Komunitas" },
+  { src: "/gallery/seminar.png", title: "Seminar AI & Teknologi Masa Depan", category: "Seminar" },
+  { src: "/gallery/competition.png", title: "Juara Regional Programming", category: "Kompetisi" },
+  { src: "/gallery/community.png", title: "Program Literasi Digital", category: "Komunitas" },
 ];
-
-const GALLERY_FILTERS = ["All", "Events", "Workshops", "Competitions", "Community"];
 
 const TESTIMONIALS = [
   {
-    quote: "HIMASANTIKA transformed my perspective on technology. The hackathons and workshops gave me the confidence and skills to land my dream internship at a top tech company.",
+    quote: "HIMASANTIKA mengubah cara pandang saya terhadap teknologi. Hackathon dan workshop memberikan kepercayaan diri dan keterampilan untuk mendapatkan magang impian di perusahaan teknologi ternama.",
     name: "Sarah Putri",
-    role: "Computer Science '23 — Software Engineer Intern",
-    avatar: "SP",
+    role: "Intern Software Engineer",
+    year: "Angkatan '23",
   },
   {
-    quote: "As an alumni, I can confidently say that the leadership skills and technical expertise I gained from HIMASANTIKA were instrumental in building my career. The community is truly exceptional.",
+    quote: "Kemampuan kepemimpinan dan keahlian teknis yang saya peroleh sangat berperan dalam membangun karir saya. Komunitas di sini benar-benar luar biasa.",
     name: "Ahmad Rizky",
-    role: "Alumni '20 — Senior Developer at Tokopedia",
-    avatar: "AR",
+    role: "Senior Developer, Tokopedia",
+    year: "Alumni '20",
   },
   {
-    quote: "HIMASANTIKA represents the gold standard for student organizations. Their events are professional, their members are passionate, and their impact on student development is remarkable.",
+    quote: "HIMASANTIKA merepresentasikan standar tertinggi untuk organisasi mahasiswa. Dampaknya terhadap pengembangan mahasiswa sangat luar biasa.",
     name: "Dr. Maya Sari",
-    role: "Faculty Advisor — Computer Science Department",
-    avatar: "MS",
-  },
-  {
-    quote: "The AI study club and bootcamps accelerated my learning beyond what classroom education could provide. I built my first ML model within weeks of joining.",
-    name: "Budi Santoso",
-    role: "Data Science '24 — ML Engineer Intern",
-    avatar: "BS",
+    role: "Dosen Pembimbing",
+    year: "Departemen Informatika",
   },
 ];
 
 const FAQS = [
-  { q: "How do I join HIMASANTIKA?", a: "Registration opens every semester through our website and social media. Simply fill out the registration form, attend the orientation session, and choose your preferred division. All Informatics students are welcome regardless of experience level." },
-  { q: "Do I need prior experience in programming?", a: "Not at all! HIMASANTIKA welcomes students of all skill levels. We offer beginner-friendly workshops, mentorship programs, and study clubs designed to help you build a strong foundation in technology." },
-  { q: "What divisions can I join?", a: "We offer 10 specialized divisions: Programming, UI/UX Design, AI, Cybersecurity, Web Dev, Mobile Dev, Multimedia, Public Relations, R&D, and Entrepreneurship. You can join one primary division and participate in activities across others." },
-  { q: "Are there membership fees?", a: "HIMASANTIKA charges a minimal annual membership fee that covers event materials, certificates, and organizational resources. Scholarships are available for students with financial constraints." },
-  { q: "Can I participate in competitions?", a: "Absolutely! We actively encourage and support members in national and international competitions. We provide training, mentorship, and funding support for competition teams." },
-  { q: "How does HIMASANTIKA help with career development?", a: "We organize career workshops, resume reviews, mock interviews, and networking events with industry professionals. Our alumni network spanning major tech companies provides valuable mentorship and job referral opportunities." },
+  { q: "Bagaimana cara bergabung dengan HIMASANTIKA?", a: "Pendaftaran dibuka setiap semester melalui website dan media sosial kami. Isi formulir pendaftaran, hadiri sesi orientasi, dan pilih divisi yang kamu minati. Semua mahasiswa Informatika disambut tanpa memandang tingkat pengalaman." },
+  { q: "Apakah perlu pengalaman pemrograman sebelumnya?", a: "Tidak sama sekali. Kami menyambut mahasiswa dari semua tingkat keahlian dengan workshop ramah pemula, program mentoring, dan study club yang dirancang untuk membangun fondasi yang kuat." },
+  { q: "Divisi apa saja yang tersedia?", a: "Kami memiliki 10 divisi khusus: Pemrograman, Desain UI/UX, Kecerdasan Buatan, Keamanan Siber, Pengembangan Web & Mobile, Multimedia, Hubungan Masyarakat, Riset & Pengembangan, dan Kewirausahaan." },
+  { q: "Bagaimana HIMASANTIKA membantu pengembangan karir?", a: "Kami menyelenggarakan workshop karir, review CV, simulasi wawancara, dan acara networking dengan profesional industri. Jaringan alumni kami di perusahaan teknologi terkemuka menyediakan mentoring dan rujukan kerja." },
+  { q: "Bisakah saya ikut kompetisi?", a: "Tentu saja! Kami sangat mendorong dan mendukung anggota dalam kompetisi nasional dan internasional dengan pelatihan, mentoring, dan dukungan pendanaan." },
 ];
 
-/* ════════════════════════════════════════════════════════
-   HOOKS
-   ════════════════════════════════════════════════════════ */
+const formatNum = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-function useIntersectionObserver(options = {}) {
-  const ref = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
+/* ══════════════════════════════════════════════════════════
+   MOUSE FOLLOWER
+   ══════════════════════════════════════════════════════════ */
+
+function MouseFollower() {
+  const cursorRef = useRef(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setIsVisible(true); observer.unobserve(el); } },
-      { threshold: 0.15, ...options }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const cursor = cursorRef.current;
+    if (!cursor || window.innerWidth < 768) return;
+
+    let mouseX = 0, mouseY = 0;
+    const onMove = (e) => { mouseX = e.clientX; mouseY = e.clientY; };
+    const followLoop = () => {
+      if (cursor) cursor.style.transform = `translate(${mouseX - 10}px, ${mouseY - 10}px)`;
+      requestAnimationFrame(followLoop);
+    };
+    const onEnter = () => cursor.classList.add("hovering");
+    const onLeave = () => cursor.classList.remove("hovering");
+
+    document.addEventListener("mousemove", onMove);
+    setTimeout(() => cursor.classList.add("active"), 500);
+    const raf = requestAnimationFrame(followLoop);
+
+    const interactives = document.querySelectorAll("a, button, .interactive");
+    interactives.forEach((el) => { el.addEventListener("mouseenter", onEnter); el.addEventListener("mouseleave", onLeave); });
+
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(raf);
+      interactives.forEach((el) => { el.removeEventListener("mouseenter", onEnter); el.removeEventListener("mouseleave", onLeave); });
+    };
   }, []);
 
-  return [ref, isVisible];
+  return <div ref={cursorRef} className="cursor-follower" />;
 }
 
-function useCounter(target, isVisible, duration = 2000) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!isVisible) return;
-    let start = 0;
-    const increment = target / (duration / 16);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= target) { setCount(target); clearInterval(timer); }
-      else setCount(Math.floor(start));
-    }, 16);
-    return () => clearInterval(timer);
-  }, [isVisible, target, duration]);
-  return count;
-}
+/* ══════════════════════════════════════════════════════════
+   NAVBAR
+   ══════════════════════════════════════════════════════════ */
 
-/* ════════════════════════════════════════════════════════
-   COMPONENTS
-   ════════════════════════════════════════════════════════ */
-
-/* ── Navbar ── */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
   return (
-    <nav
-      id="navbar"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? "glass shadow-lg shadow-black/[.04]" : "bg-transparent"
-      }`}
-    >
-      <div className="max-w-[1440px] mx-auto flex items-center justify-between px-6 lg:px-12 h-[72px]">
-        {/* Logo */}
-        <a href="#home" className="flex items-center gap-3 group" aria-label="HIMASANTIKA Home">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg font-[family-name:var(--font-heading)] shadow-lg shadow-primary/25 group-hover:shadow-primary/40 transition-shadow">
-            H
-          </div>
-          <span className="text-lg font-bold font-[family-name:var(--font-heading)] tracking-tight hidden sm:block">
-            HIMA<span className="gradient-text">SANTIKA</span>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "nav-glass border-b border-border/50" : ""}`}>
+      <div className="section-inner flex items-center justify-between h-16 lg:h-[72px]">
+        <a href="#home" className="flex items-center gap-2.5">
+          <Image src="/icon.jpg" alt="HIMASANTIKA" width={36} height={36} className="rounded-lg object-cover" />
+          <span className="text-sm font-semibold tracking-tight font-[family-name:var(--font-heading)] hidden sm:block">
+            HIMASANTIKA
           </span>
         </a>
 
-        {/* Desktop Links */}
         <div className="hidden lg:flex items-center gap-8">
-          {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href} className="nav-link font-[family-name:var(--font-body)]">
-              {link.label}
-            </a>
+          {NAV_LINKS.map((l) => (
+            <a key={l.href} href={l.href} className="nav-link-editorial">{l.label}</a>
           ))}
         </div>
 
-        {/* CTA + Mobile */}
         <div className="flex items-center gap-4">
-          <a href="#cta" className="btn-primary !py-2.5 !px-6 !text-sm !rounded-xl hidden sm:inline-flex">
-            Join HIMASANTIKA
+          <a href="#cta" className="nav-link-editorial hidden sm:block font-semibold !text-ink">
+            Gabung →
           </a>
           <button
-            className="lg:hidden flex flex-col gap-1.5 p-2"
+            className="lg:hidden flex flex-col gap-1 p-2"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
-            <span className={`w-6 h-0.5 bg-text rounded-full transition-all ${mobileOpen ? "rotate-45 translate-y-2" : ""}`} />
-            <span className={`w-6 h-0.5 bg-text rounded-full transition-all ${mobileOpen ? "opacity-0" : ""}`} />
-            <span className={`w-6 h-0.5 bg-text rounded-full transition-all ${mobileOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+            <span className={`block w-5 h-[1.5px] bg-ink transition-all duration-300 ${mobileOpen ? "rotate-45 translate-y-[5.5px]" : ""}`} />
+            <span className={`block w-5 h-[1.5px] bg-ink transition-all duration-300 ${mobileOpen ? "opacity-0" : ""}`} />
+            <span className={`block w-5 h-[1.5px] bg-ink transition-all duration-300 ${mobileOpen ? "-rotate-45 -translate-y-[5.5px]" : ""}`} />
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="lg:hidden glass border-t border-white/20 animate-fade-in">
-          <div className="flex flex-col p-6 gap-4">
-            {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="nav-link text-base font-[family-name:var(--font-body)]" onClick={() => setMobileOpen(false)}>
-                {link.label}
-              </a>
+        <div className="lg:hidden nav-glass border-t border-border/50">
+          <div className="section-inner py-6 flex flex-col gap-4">
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href} className="nav-link-editorial text-base" onClick={() => setMobileOpen(false)}>{l.label}</a>
             ))}
-            <a href="#cta" className="btn-primary !text-sm mt-2" onClick={() => setMobileOpen(false)}>
-              Join HIMASANTIKA
-            </a>
+            <a href="#cta" className="btn-editorial mt-2 text-center justify-center" onClick={() => setMobileOpen(false)}>Gabung HIMASANTIKA</a>
           </div>
         </div>
       )}
@@ -267,674 +185,550 @@ function Navbar() {
   );
 }
 
-/* ── Hero ── */
+/* ══════════════════════════════════════════════════════════
+   HERO — Cinematic Entrance
+   ══════════════════════════════════════════════════════════ */
+
 function Hero() {
-  return (
-    <section id="home" className="relative min-h-screen flex items-center hero-mesh overflow-hidden">
-      {/* Floating shapes */}
-      <div className="float-shape w-[500px] h-[500px] bg-primary/20 -top-40 -left-40 animate-pulse-glow" />
-      <div className="float-shape w-[400px] h-[400px] bg-secondary/20 top-1/3 -right-40 animate-pulse-glow delay-200" />
-      <div className="float-shape w-[300px] h-[300px] bg-accent/15 bottom-20 left-1/4 animate-pulse-glow delay-400" />
-
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full grid lg:grid-cols-2 gap-12 lg:gap-20 items-center pt-24 pb-16">
-        {/* Text */}
-        <div className="flex flex-col gap-8 relative z-10">
-          <div className="section-badge w-fit animate-fade-in-up" style={{ animationDelay: "0.1s", opacity: 0, animationFillMode: "forwards" }}>
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            Himpunan Mahasiswa Informatika
-          </div>
-
-          <h1
-            className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.08] tracking-tight font-[family-name:var(--font-heading)] animate-fade-in-up"
-            style={{ animationDelay: "0.25s", opacity: 0, animationFillMode: "forwards" }}
-          >
-            Empowering{" "}
-            <span className="gradient-text">Future Tech</span>{" "}
-            Leaders
-          </h1>
-
-          <p
-            className="text-lg sm:text-xl text-text-muted leading-relaxed max-w-xl font-[family-name:var(--font-body)] animate-fade-in-up"
-            style={{ animationDelay: "0.4s", opacity: 0, animationFillMode: "forwards" }}
-          >
-            HIMASANTIKA is a premier hub for innovation, leadership, collaboration, and technology — where aspiring tech professionals transform ideas into impact.
-          </p>
-
-          <div
-            className="flex flex-wrap gap-4 animate-fade-in-up"
-            style={{ animationDelay: "0.55s", opacity: 0, animationFillMode: "forwards" }}
-          >
-            <a href="#cta" className="btn-primary text-base">
-              <span>Join Us</span>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-            </a>
-            <a href="#programs" className="btn-secondary text-base">
-              Explore Activities
-            </a>
-          </div>
-
-          {/* Trust badges */}
-          <div
-            className="flex items-center gap-6 pt-4 animate-fade-in-up"
-            style={{ animationDelay: "0.7s", opacity: 0, animationFillMode: "forwards" }}
-          >
-            <div className="flex -space-x-3">
-              {["bg-primary","bg-secondary","bg-accent","bg-primary-dark"].map((c, i) => (
-                <div key={i} className={`w-10 h-10 rounded-full ${c} border-2 border-white flex items-center justify-center text-white text-xs font-bold`}>
-                  {["A","B","C","D"][i]}
-                </div>
-              ))}
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-text font-[family-name:var(--font-heading)]">500+ Active Members</p>
-              <p className="text-xs text-text-muted">Join our growing community</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero Illustration */}
-        <div
-          className="relative flex items-center justify-center animate-fade-in-up"
-          style={{ animationDelay: "0.4s", opacity: 0, animationFillMode: "forwards" }}
-        >
-          <div className="relative w-full max-w-lg aspect-square">
-            {/* Glowing circle */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20 animate-pulse-glow" />
-
-            {/* Central SVG Illustration */}
-            <svg viewBox="0 0 400 400" className="relative z-10 w-full h-full drop-shadow-2xl" fill="none">
-              {/* Circuit board background */}
-              <circle cx="200" cy="200" r="160" stroke="url(#hero-grad)" strokeWidth="1" strokeDasharray="8 4" opacity="0.3" />
-              <circle cx="200" cy="200" r="120" stroke="url(#hero-grad)" strokeWidth="0.5" strokeDasharray="4 8" opacity="0.2" />
-
-              {/* Code Brackets */}
-              <g className="animate-float" style={{ animationDelay: "0s" }}>
-                <rect x="80" y="100" width="72" height="56" rx="12" fill="url(#hero-grad)" fillOpacity="0.1" stroke="url(#hero-grad)" strokeWidth="1.5" />
-                <text x="92" y="126" fill="#2563EB" fontSize="14" fontFamily="monospace" fontWeight="600">&lt;/&gt;</text>
-                <text x="92" y="144" fill="#38BDF8" fontSize="10" fontFamily="monospace">code</text>
-              </g>
-
-              {/* AI Brain */}
-              <g className="animate-float" style={{ animationDelay: "1s" }}>
-                <rect x="248" y="80" width="72" height="56" rx="12" fill="url(#hero-grad2)" fillOpacity="0.1" stroke="url(#hero-grad2)" strokeWidth="1.5" />
-                <text x="264" y="108" fill="#8B5CF6" fontSize="20">🧠</text>
-                <text x="260" y="126" fill="#8B5CF6" fontSize="10" fontFamily="monospace">AI/ML</text>
-              </g>
-
-              {/* Cloud */}
-              <g className="animate-float" style={{ animationDelay: "2s" }}>
-                <rect x="260" y="220" width="72" height="56" rx="12" fill="url(#hero-grad)" fillOpacity="0.1" stroke="url(#hero-grad)" strokeWidth="1.5" />
-                <text x="276" y="248" fill="#2563EB" fontSize="20">☁️</text>
-                <text x="270" y="266" fill="#38BDF8" fontSize="9" fontFamily="monospace">Cloud</text>
-              </g>
-
-              {/* Shield */}
-              <g className="animate-float" style={{ animationDelay: "3s" }}>
-                <rect x="68" y="240" width="72" height="56" rx="12" fill="url(#hero-grad2)" fillOpacity="0.1" stroke="url(#hero-grad2)" strokeWidth="1.5" />
-                <text x="84" y="268" fill="#8B5CF6" fontSize="20">🛡️</text>
-                <text x="80" y="286" fill="#8B5CF6" fontSize="9" fontFamily="monospace">Secure</text>
-              </g>
-
-              {/* Central Hub */}
-              <circle cx="200" cy="200" r="44" fill="url(#hero-grad)" fillOpacity="0.12" stroke="url(#hero-grad)" strokeWidth="2" />
-              <circle cx="200" cy="200" r="28" fill="url(#hero-grad)" />
-              <text x="189" y="205" fill="white" fontSize="16" fontWeight="bold" fontFamily="monospace">H</text>
-
-              {/* Connection Lines */}
-              <line x1="152" y1="128" x2="172" y2="185" stroke="url(#hero-grad)" strokeWidth="1" opacity="0.4" strokeDasharray="4 3" />
-              <line x1="248" y1="108" x2="228" y2="180" stroke="url(#hero-grad2)" strokeWidth="1" opacity="0.4" strokeDasharray="4 3" />
-              <line x1="260" y1="248" x2="230" y2="218" stroke="url(#hero-grad)" strokeWidth="1" opacity="0.4" strokeDasharray="4 3" />
-              <line x1="140" y1="268" x2="175" y2="218" stroke="url(#hero-grad2)" strokeWidth="1" opacity="0.4" strokeDasharray="4 3" />
-
-              {/* Floating dots */}
-              {[{cx:170,cy:140},{cx:240,cy:155},{cx:150,cy:250},{cx:250,cy:275},{cx:200,cy:320},{cx:130,cy:180},{cx:280,cy:180}].map((d,i) => (
-                <circle key={i} cx={d.cx} cy={d.cy} r="3" fill={i%2===0?"#2563EB":"#8B5CF6"} opacity="0.5">
-                  <animate attributeName="opacity" values="0.3;0.8;0.3" dur={`${2+i*0.5}s`} repeatCount="indefinite" />
-                </circle>
-              ))}
-
-              <defs>
-                <linearGradient id="hero-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#2563EB" />
-                  <stop offset="100%" stopColor="#38BDF8" />
-                </linearGradient>
-                <linearGradient id="hero-grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#8B5CF6" />
-                  <stop offset="100%" stopColor="#2563EB" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-in" style={{ animationDelay: "1.2s", opacity: 0, animationFillMode: "forwards" }}>
-        <span className="text-xs text-text-muted font-medium tracking-wider uppercase">Scroll to explore</span>
-        <div className="w-6 h-10 border-2 border-text-muted/40 rounded-full flex justify-center pt-2">
-          <div className="w-1.5 h-3 bg-primary rounded-full animate-bounce" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── Section Wrapper ── */
-function Section({ id, children, className = "", dark = false }) {
-  const [ref, isVisible] = useIntersectionObserver();
-  return (
-    <section
-      id={id}
-      ref={ref}
-      className={`section-padding relative overflow-hidden ${dark ? "bg-bg-dark text-white" : ""} ${className} ${isVisible ? "visible" : ""}`}
-    >
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-        {typeof children === "function" ? children(isVisible) : children}
-      </div>
-    </section>
-  );
-}
-
-/* ── Section Header ── */
-function SectionHeader({ badge, title, subtitle, center = true, light = false }) {
-  return (
-    <div className={`flex flex-col gap-5 mb-16 ${center ? "items-center text-center" : ""}`}>
-      <div className="section-badge w-fit">{badge}</div>
-      <h2 className={`text-4xl sm:text-5xl font-bold tracking-tight font-[family-name:var(--font-heading)] ${light ? "text-white" : ""}`}>
-        {title}
-      </h2>
-      {subtitle && (
-        <p className={`text-lg max-w-2xl leading-relaxed ${light ? "text-white/70" : "text-text-muted"}`}>
-          {subtitle}
-        </p>
-      )}
-    </div>
-  );
-}
-
-/* ── About ── */
-function About() {
-  return (
-    <Section id="about">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ About Us"
-            title={<>The Story Behind <span className="gradient-text">HIMASANTIKA</span></>}
-            subtitle="Building a legacy of technological excellence, innovation, and community-driven impact since our founding."
-          />
-
-          {/* Vision & Mission */}
-          <div className={`grid md:grid-cols-2 gap-8 mb-16 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            {/* Vision */}
-            <div className="premium-card p-8 sm:p-10">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center mb-6">
-                <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold font-[family-name:var(--font-heading)] mb-4">Our Vision</h3>
-              <p className="text-text-muted leading-relaxed text-base">
-                To become the most innovative and impactful student technology organization in the nation, producing world-class tech talent who drive digital transformation and create positive change in society.
-              </p>
-            </div>
-
-            {/* Mission */}
-            <div className="premium-card p-8 sm:p-10">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent/10 to-primary/10 flex items-center justify-center mb-6">
-                <svg className="w-7 h-7 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold font-[family-name:var(--font-heading)] mb-4">Our Mission</h3>
-              <ul className="space-y-3 text-text-muted text-base">
-                {[
-                  "Foster a culture of continuous learning and technological excellence",
-                  "Provide world-class workshops, hackathons, and competitive programming training",
-                  "Bridge the gap between academia and industry through partnerships",
-                  "Empower students to become leaders, innovators, and change-makers",
-                ].map((item, i) => (
-                  <li key={i} className="flex gap-3 items-start">
-                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                    </span>
-                    <span className="leading-relaxed">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Core Values */}
-          <div className={`grid sm:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-700 delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            {[
-              { icon: "🎯", title: "Excellence", desc: "Striving for the highest standards in everything we do" },
-              { icon: "🤝", title: "Integrity", desc: "Operating with transparency, honesty, and ethical responsibility" },
-              { icon: "🌍", title: "Inclusivity", desc: "Welcoming diverse perspectives and backgrounds" },
-              { icon: "💡", title: "Curiosity", desc: "Nurturing an insatiable hunger for knowledge and discovery" },
-            ].map((val, i) => (
-              <div key={i} className="premium-card p-6 text-center group">
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{val.icon}</div>
-                <h4 className="font-bold text-lg font-[family-name:var(--font-heading)] mb-2">{val.title}</h4>
-                <p className="text-sm text-text-muted leading-relaxed">{val.desc}</p>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </Section>
-  );
-}
-
-/* ── Why HIMASANTIKA ── */
-function WhySection() {
-  return (
-    <Section id="why" className="bg-gradient-to-b from-bg to-white">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ Why Us"
-            title={<>Why Choose <span className="gradient-text">HIMASANTIKA</span>?</>}
-            subtitle="Four pillars that define our commitment to developing the next generation of technology leaders."
-          />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {FEATURES.map((f, i) => (
-              <div
-                key={i}
-                className={`gradient-border p-8 flex flex-col gap-5 group hover:shadow-xl transition-all duration-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-                style={{ transitionDelay: `${i * 120}ms` }}
-              >
-                <div className="group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">{f.icon}</div>
-                <h3 className="text-xl font-bold font-[family-name:var(--font-heading)]">{f.title}</h3>
-                <p className="text-sm text-text-muted leading-relaxed">{f.desc}</p>
-                <div className={`h-1 w-12 rounded-full bg-gradient-to-r ${f.gradient} group-hover:w-full transition-all duration-500`} />
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </Section>
-  );
-}
-
-/* ── Divisions ── */
-function Divisions() {
-  return (
-    <Section id="divisions">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ Divisions"
-            title={<>Explore Our <span className="gradient-text">Divisions</span></>}
-            subtitle="Ten specialized divisions offering deep-dive learning paths across the entire technology spectrum."
-          />
-          <div className="bento-grid">
-            {DIVISIONS.map((d, i) => (
-              <div
-                key={i}
-                className={`${d.size} premium-card p-6 sm:p-8 flex flex-col justify-between group cursor-pointer ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-                style={{ transitionDelay: `${i * 80}ms`, transition: "all 0.6s cubic-bezier(0.4,0,0.2,1)" }}
-              >
-                <div>
-                  <span className="text-4xl mb-4 block group-hover:scale-125 transition-transform duration-500">{d.icon}</span>
-                  <h3 className="text-lg font-bold font-[family-name:var(--font-heading)] mb-2 group-hover:text-primary transition-colors">{d.title}</h3>
-                  <p className="text-sm text-text-muted leading-relaxed">{d.desc}</p>
-                </div>
-                <div className="mt-4 flex items-center gap-2 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                  <span>Learn more</span>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </Section>
-  );
-}
-
-/* ── Programs ── */
-function Programs() {
-  return (
-    <Section id="programs" className="bg-gradient-to-b from-white to-bg">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ Programs"
-            title={<>Programs & <span className="gradient-text">Activities</span></>}
-            subtitle="A dynamic calendar of events designed to accelerate your growth as a technology professional."
-          />
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="timeline-line hidden md:block" />
-
-            <div className="flex flex-col gap-12">
-              {PROGRAMS.map((p, i) => {
-                const isLeft = i % 2 === 0;
-                return (
-                  <div
-                    key={i}
-                    className={`relative flex flex-col md:flex-row items-center gap-6 ${isLeft ? "md:flex-row" : "md:flex-row-reverse"} ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-                    style={{ transitionDelay: `${i * 100}ms`, transition: "all 0.7s cubic-bezier(0.4,0,0.2,1)" }}
-                  >
-                    {/* Card */}
-                    <div className={`md:w-[calc(50%-40px)] premium-card p-6 sm:p-8 group hover:glow-primary ${isLeft ? "md:text-right" : ""}`}>
-                      <div className={`flex items-center gap-3 mb-3 ${isLeft ? "md:justify-end" : ""}`}>
-                        <span className="text-2xl">{p.icon}</span>
-                        <span className="text-xs font-semibold text-primary bg-primary/8 px-3 py-1 rounded-full">{p.period}</span>
-                      </div>
-                      <h3 className="text-xl font-bold font-[family-name:var(--font-heading)] mb-2 group-hover:text-primary transition-colors">{p.title}</h3>
-                      <p className="text-sm text-text-muted leading-relaxed">{p.desc}</p>
-                    </div>
-
-                    {/* Timeline dot */}
-                    <div className="hidden md:flex w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent items-center justify-center z-10 shadow-lg shadow-primary/25 flex-shrink-0">
-                      <div className="w-3 h-3 rounded-full bg-white" />
-                    </div>
-
-                    {/* Spacer */}
-                    <div className="hidden md:block md:w-[calc(50%-40px)]" />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
-    </Section>
-  );
-}
-
-/* ── Stats ── */
-function StatCounter({ stat, isVisible }) {
-  const count = useCounter(stat.value, isVisible);
-  return (
-    <div className="glass-card rounded-3xl p-8 text-center group hover:bg-white/80 transition-all duration-300">
-      <div className="text-5xl sm:text-6xl font-extrabold gradient-text font-[family-name:var(--font-heading)] mb-2">
-        {count.toLocaleString()}{stat.suffix}
-      </div>
-      <p className="text-text-muted font-medium text-base">{stat.label}</p>
-    </div>
-  );
-}
-
-function Statistics() {
-  return (
-    <Section id="stats" className="bg-gradient-to-br from-bg-dark via-[#131B2E] to-bg-dark" dark>
-      {(isVisible) => (
-        <>
-          {/* Floating shapes */}
-          <div className="float-shape w-[300px] h-[300px] bg-primary/10 -top-20 -right-20 animate-pulse-glow" />
-          <div className="float-shape w-[200px] h-[200px] bg-accent/10 bottom-10 -left-20 animate-pulse-glow delay-300" />
-
-          <SectionHeader
-            badge="✦ Achievements"
-            title={<>Our Impact in <span className="gradient-text">Numbers</span></>}
-            subtitle="A testament to years of dedication, growth, and collective achievement."
-            light
-          />
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
-            {STATS.map((stat, i) => (
-              <StatCounter key={i} stat={stat} isVisible={isVisible} />
-            ))}
-          </div>
-        </>
-      )}
-    </Section>
-  );
-}
-
-/* ── Gallery ── */
-function Gallery() {
-  const [filter, setFilter] = useState("All");
-  const filtered = filter === "All" ? GALLERY_ITEMS : GALLERY_ITEMS.filter((g) => g.category === filter);
-
-  return (
-    <Section id="gallery">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ Gallery"
-            title={<>Moments That <span className="gradient-text">Matter</span></>}
-            subtitle="A visual journey through our events, workshops, competitions, and community initiatives."
-          />
-
-          {/* Filter Buttons */}
-          <div className={`flex flex-wrap justify-center gap-3 mb-12 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            {GALLERY_FILTERS.map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 font-[family-name:var(--font-heading)] ${
-                  filter === f
-                    ? "bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/25"
-                    : "bg-white text-text-muted border border-border hover:border-primary/30 hover:text-primary"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-
-          {/* Masonry */}
-          <div className="masonry">
-            {filtered.map((item, i) => (
-              <div
-                key={item.src}
-                className={`relative group rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                <div className={`relative ${item.tall ? "aspect-[3/4]" : "aspect-[4/3]"}`}>
-                  <Image
-                    src={item.src}
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                  <span className="text-xs font-semibold text-primary bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full w-fit mb-2">{item.category}</span>
-                  <h3 className="text-white font-bold text-lg font-[family-name:var(--font-heading)]">{item.title}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </Section>
-  );
-}
-
-/* ── Testimonials ── */
-function Testimonials() {
-  const [active, setActive] = useState(0);
-  const timerRef = useRef(null);
-
-  const next = useCallback(() => setActive((p) => (p + 1) % TESTIMONIALS.length), []);
+  const sectionRef = useRef(null);
+  const headlineRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const ctaRef = useRef(null);
+  const badgeRef = useRef(null);
+  const imageRef = useRef(null);
 
   useEffect(() => {
-    timerRef.current = setInterval(next, 5000);
-    return () => clearInterval(timerRef.current);
-  }, [next]);
+    const tl = createTimeline({ defaults: { easing: "easeOutCubic" } });
 
-  const goTo = (i) => {
-    setActive(i);
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(next, 5000);
-  };
+    tl.add(badgeRef.current, { opacity: [0, 1], translateY: [20, 0], duration: 800 }, 200)
+      .add(headlineRef.current.querySelectorAll(".word"), {
+        translateY: ["105%", "0%"],
+        duration: 1000,
+        delay: stagger(80),
+      }, 400)
+      .add(subtitleRef.current, { opacity: [0, 1], translateY: [30, 0], duration: 900 }, 1000)
+      .add(ctaRef.current, { opacity: [0, 1], translateY: [20, 0], duration: 700 }, 1300)
+      .add(imageRef.current, {
+        clipPath: ["inset(100% 0% 0% 0%)", "inset(0% 0% 0% 0%)"],
+        duration: 1200,
+        easing: "easeInOutQuart",
+      }, 600);
+  }, []);
 
   return (
-    <Section id="testimonials" className="bg-gradient-to-b from-bg to-white">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ Testimonials"
-            title={<>What People <span className="gradient-text">Say</span></>}
-            subtitle="Hear from students, alumni, and faculty about their HIMASANTIKA experience."
-          />
-          <div className={`max-w-3xl mx-auto transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            {/* Card */}
-            <div className="glass-card rounded-3xl p-8 sm:p-12 text-center relative">
-              {/* Quote mark */}
-              <div className="text-6xl gradient-text font-serif leading-none mb-4">&ldquo;</div>
+    <section id="home" ref={sectionRef} className="relative min-h-screen flex flex-col justify-end pb-16 lg:pb-24 pt-24 overflow-hidden">
+      <div className="section-inner w-full relative z-10">
+        <div ref={badgeRef} className="label mb-8" style={{ color: "var(--color-yellow)" }}>
+          ● Himpunan Mahasiswa Informatika
+        </div>
 
-              <p className="text-lg sm:text-xl text-text leading-relaxed mb-8 font-[family-name:var(--font-body)] min-h-[120px]">
-                {TESTIMONIALS[active].quote}
-              </p>
+        <div ref={headlineRef} className="mb-8">
+          <h1 className="display-xl">
+            <span className="reveal-line block overflow-hidden">
+              <span className="word inline-block">Membentuk</span>
+            </span>
+            <span className="reveal-line block overflow-hidden">
+              <span className="word inline-block">Pemimpin Teknologi</span>
+            </span>
+            <span className="reveal-line block overflow-hidden">
+              <span className="word inline-block" style={{ color: "var(--color-yellow)" }}>Masa Depan</span>
+            </span>
+          </h1>
+        </div>
 
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/20">
-                  {TESTIMONIALS[active].avatar}
-                </div>
-                <div>
-                  <p className="font-bold font-[family-name:var(--font-heading)] text-base">{TESTIMONIALS[active].name}</p>
-                  <p className="text-sm text-text-muted">{TESTIMONIALS[active].role}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Dots */}
-            <div className="flex justify-center gap-3 mt-8">
-              {TESTIMONIALS.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => goTo(i)}
-                  aria-label={`Go to testimonial ${i + 1}`}
-                  className={`h-2.5 rounded-full transition-all duration-500 ${
-                    i === active ? "w-8 bg-gradient-to-r from-primary to-accent" : "w-2.5 bg-border hover:bg-text-light"
-                  }`}
-                />
-              ))}
-            </div>
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+          <p ref={subtitleRef} className="body-lg max-w-lg">
+            Pusat inovasi, kepemimpinan, dan kolaborasi — tempat para calon
+            profesional teknologi mengubah ide menjadi dampak nyata.
+          </p>
+          <div ref={ctaRef} className="flex gap-6">
+            <a href="#cta" className="btn-editorial">
+              Gabung Sekarang
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#about" className="cta-link">
+              Jelajahi
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
           </div>
-        </>
-      )}
-    </Section>
+        </div>
+      </div>
+
+      <div ref={imageRef} className="absolute top-0 right-0 w-full lg:w-[55%] h-full opacity-[0.12] lg:opacity-[0.18]">
+        <Image src="/gallery/hackathon.png" alt="Komunitas HIMASANTIKA" fill className="object-cover" priority sizes="100vw" />
+      </div>
+
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+        <div className="w-px h-12 bg-ink-muted relative overflow-hidden">
+          <div className="w-full h-4 bg-ink absolute top-0 left-0" style={{ animation: "scrollPulse 2s ease-in-out infinite" }} />
+        </div>
+      </div>
+    </section>
   );
 }
 
-/* ── Partners ── */
-function Partners() {
-  const partners = [
-    "Google", "Microsoft", "AWS", "GitHub", "Figma", "JetBrains",
-    "Meta", "IBM", "Intel", "NVIDIA", "Oracle", "Cisco",
+/* ══════════════════════════════════════════════════════════
+   ABOUT — Narrative Unfolding
+   ══════════════════════════════════════════════════════════ */
+
+function About() {
+  return (
+    <section id="about" className="section-space overflow-hidden">
+      <div className="section-inner">
+        <div className="label mb-6">Tentang HIMASANTIKA</div>
+
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 mb-24">
+          <div>
+            <div>
+              <h2 className="display-lg mb-0">
+                <span className="block">Di mana teknologi</span>
+                <span className="block text-yellow">bertemu tujuan</span>
+              </h2>
+            </div>
+          </div>
+          <div className="flex flex-col justify-end">
+            <p className="body-lg">
+              Didirikan dengan visi menjembatani kesenjangan antara pembelajaran akademis dan
+              kesiapan industri, HIMASANTIKA telah berkembang menjadi ekosistem yang dinamis
+              di mana pikiran-pikiran penasaran bertemu, berkolaborasi, dan menciptakan
+              teknologi bermakna yang berdampak pada kehidupan nyata.
+            </p>
+          </div>
+        </div>
+
+        <div className="img-reveal mb-24 rounded-2xl overflow-hidden">
+          <div className="relative aspect-[21/9]">
+            <Image src="/gallery/collaboration.png" alt="Tim HIMASANTIKA" fill className="object-cover" sizes="100vw" />
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-16 lg:gap-24 mb-24">
+          <div>
+            <div className="label mb-4">Visi</div>
+            <p className="display-md mb-4">Menjadi organisasi mahasiswa teknologi paling inovatif di tingkat nasional.</p>
+            <p className="body-md">Menghasilkan talenta teknologi berkelas dunia yang mendorong transformasi digital dan menciptakan perubahan positif di masyarakat melalui keunggulan, integritas, dan rasa ingin tahu yang tiada henti.</p>
+          </div>
+          <div>
+            <div className="label mb-4">Misi</div>
+            <ul className="space-y-4">
+              {[
+                "Menumbuhkan budaya belajar berkelanjutan dan keunggulan teknologi",
+                "Menyediakan workshop, hackathon, dan pelatihan berkelas dunia",
+                "Menjembatani kesenjangan antara akademis dan industri",
+                "Memberdayakan mahasiswa menjadi pemimpin dan agen perubahan",
+              ].map((item, i) => (
+                <li key={i} className="flex gap-4 items-start body-md">
+                  <span className="text-yellow font-semibold text-sm mt-0.5 flex-shrink-0">0{i + 1}</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div className="label mb-8">Nilai Inti</div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { num: "01", title: "Keunggulan", desc: "Standar tertinggi dalam segala hal yang kami lakukan" },
+              { num: "02", title: "Integritas", desc: "Transparansi, kejujuran, dan tanggung jawab etis" },
+              { num: "03", title: "Inklusivitas", desc: "Menyambut keragaman perspektif dan latar belakang" },
+              { num: "04", title: "Rasa Ingin Tahu", desc: "Kehausan yang tak pernah padam akan pengetahuan" },
+            ].map((v) => (
+              <div key={v.num} className="value-item group">
+                <span className="text-4xl lg:text-5xl font-bold font-[family-name:var(--font-heading)] text-border group-hover:text-yellow transition-colors duration-500 block mb-3">{v.num}</span>
+                <h4 className="text-lg font-semibold font-[family-name:var(--font-heading)] mb-1">{v.title}</h4>
+                <p className="text-sm text-ink-muted">{v.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   WHY — Feature Showcase
+   ══════════════════════════════════════════════════════════ */
+
+function Why() {
+  const items = [
+    { title: "Inovasi", desc: "Budaya pemecahan masalah kreatif dan pemikiran disruptif. Kami tidak mengikuti tren — kami menciptakannya." },
+    { title: "Teknologi", desc: "Akses langsung ke tools terkini, mentor, dan sumber daya di setiap domain teknologi utama." },
+    { title: "Kepemimpinan", desc: "Mengembangkan kemampuan kepemimpinan, komunikasi, dan manajemen proyek untuk industri teknologi." },
+    { title: "Kolaborasi", desc: "Komunitas yang dinamis di mana ide-ide beragam bertemu untuk menciptakan solusi berdampak nyata." },
   ];
 
   return (
-    <Section id="partners">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ Partners"
-            title={<>Trusted by <span className="gradient-text">Industry Leaders</span></>}
-            subtitle="We collaborate with leading technology companies, universities, and communities worldwide."
-          />
-          <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-            {partners.map((name, i) => (
-              <div
-                key={i}
-                className="premium-card p-6 flex items-center justify-center partner-logo group cursor-pointer"
-                style={{ transitionDelay: `${i * 60}ms` }}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/8 to-accent/8 flex items-center justify-center group-hover:from-primary/16 group-hover:to-accent/16 transition-all">
-                    <span className="text-xl font-bold gradient-text font-[family-name:var(--font-heading)]">{name[0]}</span>
-                  </div>
-                  <span className="text-xs font-semibold text-text-muted group-hover:text-text transition-colors">{name}</span>
-                </div>
+    <section className="section-space bg-paper-warm overflow-hidden">
+      <div className="section-inner">
+        <div className="label mb-6">Mengapa HIMASANTIKA</div>
+        <div>
+          {items.map((item, i) => (
+            <div key={i} className="why-item border-t border-border py-10 lg:py-14 grid lg:grid-cols-12 gap-6 lg:gap-12 group">
+              <div className="lg:col-span-1">
+                <span className="text-sm font-semibold text-yellow">0{i + 1}</span>
               </div>
-            ))}
-          </div>
-        </>
-      )}
-    </Section>
+              <div className="lg:col-span-4">
+                <h3 className="display-md group-hover:text-yellow transition-colors duration-500">{item.title}</h3>
+              </div>
+              <div className="lg:col-span-7 flex items-center">
+                <p className="body-lg">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+          <div className="border-t border-border" />
+        </div>
+      </div>
+    </section>
   );
 }
 
-/* ── FAQ ── */
-function FAQ() {
-  const [openIdx, setOpenIdx] = useState(null);
+/* ══════════════════════════════════════════════════════════
+   DIVISIONS — Interactive Showcase
+   ══════════════════════════════════════════════════════════ */
 
+function Divisions() {
   return (
-    <Section id="faq" className="bg-gradient-to-b from-white to-bg">
-      {(isVisible) => (
-        <>
-          <SectionHeader
-            badge="✦ FAQ"
-            title={<>Frequently Asked <span className="gradient-text">Questions</span></>}
-            subtitle="Everything you need to know about joining and participating in HIMASANTIKA."
-          />
-          <div className="max-w-3xl mx-auto flex flex-col gap-4">
-            {FAQS.map((faq, i) => (
-              <div
-                key={i}
-                className={`premium-card overflow-hidden transition-all duration-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"} ${openIdx === i ? "glow-primary" : ""}`}
-                style={{ transitionDelay: `${i * 80}ms` }}
-              >
-                <button
-                  onClick={() => setOpenIdx(openIdx === i ? null : i)}
-                  className="w-full flex items-center justify-between p-6 sm:p-8 text-left"
-                  aria-expanded={openIdx === i}
-                >
-                  <span className="font-bold text-base sm:text-lg font-[family-name:var(--font-heading)] pr-8">{faq.q}</span>
-                  <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center flex-shrink-0 transition-transform duration-500 ${openIdx === i ? "rotate-45" : ""}`}>
-                    <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                    </svg>
-                  </div>
-                </button>
-                <div className={`accordion-content ${openIdx === i ? "open" : ""}`}>
-                  <div className="px-6 sm:px-8 pb-6 sm:pb-8">
-                    <p className="text-text-muted leading-relaxed text-base">{faq.a}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+    <section id="divisions" className="section-space overflow-hidden">
+      <div className="section-inner">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+          <div>
+            <div className="label mb-4">Divisi</div>
+            <h2 className="display-lg">Sepuluh jalur<br />menuju keahlian</h2>
           </div>
-        </>
-      )}
-    </Section>
-  );
-}
-
-/* ── Final CTA ── */
-function FinalCTA() {
-  return (
-    <section id="cta" className="relative overflow-hidden">
-      <div className="cta-gradient py-24 sm:py-32 relative">
-        {/* Floating shapes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute w-72 h-72 rounded-full bg-white/10 -top-20 -left-20 animate-float-slow" />
-          <div className="absolute w-48 h-48 rounded-full bg-white/5 top-1/2 right-10 animate-float" />
-          <div className="absolute w-32 h-32 rounded-full bg-white/8 bottom-10 left-1/3 animate-float-slow" style={{ animationDelay: "2s" }} />
+          <p className="body-lg max-w-md">Divisi khusus yang menawarkan jalur pembelajaran mendalam di seluruh spektrum teknologi.</p>
         </div>
 
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/15 backdrop-blur text-white text-sm font-semibold mb-8 border border-white/20">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            Registration Open
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-px bg-border rounded-2xl overflow-hidden">
+          {DIVISIONS.map((d, i) => (
+            <div key={i} className="division-card bg-paper p-6 lg:p-8 group cursor-pointer hover:bg-paper-warm transition-colors duration-500 interactive">
+              <span className="label block mb-6 group-hover:!text-yellow transition-colors">{String(i + 1).padStart(2, "0")}</span>
+              <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)] mb-2 group-hover:text-yellow transition-colors duration-300">{d.title}</h3>
+              <p className="text-sm text-ink-muted leading-relaxed">{d.desc}</p>
+              <div className="mt-6 overflow-hidden h-0 group-hover:h-6 transition-all duration-500">
+                <span className="text-xs font-semibold text-yellow flex items-center gap-2">
+                  Jelajahi
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   PROGRAMS — Student Experience Grid
+   ══════════════════════════════════════════════════════════ */
+
+function Programs() {
+  return (
+    <section id="programs" className="section-space bg-paper-warm overflow-hidden">
+      <div className="section-inner">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
+          <div>
+            <div className="label mb-4">Program & Kegiatan</div>
+            <h2 className="display-lg">Pengalaman<br />mahasiswa</h2>
+          </div>
+          <p className="body-lg max-w-md">
+            Rangkaian kegiatan berkelanjutan untuk mengasah keterampilan teknis, kepemimpinan, dan jaringan profesional.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {PROGRAMS.map((p, i) => (
+            <div
+              key={i}
+              className="program-card bg-paper rounded-2xl p-8 border border-border group hover:border-yellow/50 hover:shadow-lg transition-all duration-500 interactive flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-yellow/10 text-yellow">
+                    {p.period}
+                  </span>
+                </div>
+                <h3 className="text-xl font-semibold font-[family-name:var(--font-heading)] mb-3 group-hover:text-yellow transition-colors">
+                  {p.title}
+                </h3>
+                <p className="body-md text-sm">{p.desc}</p>
+              </div>
+
+              <div className="mt-8 pt-4 border-t border-border/50 flex items-center justify-between text-xs text-ink-muted group-hover:text-yellow transition-colors">
+                <span>Program #{String(i + 1).padStart(2, "0")}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover:translate-x-1 transition-transform">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   STATISTICS — Dark Section (100% Reliable Render)
+   ══════════════════════════════════════════════════════════ */
+
+function Statistics() {
+  const numbersRef = useRef(null);
+
+  useEffect(() => {
+    if (!numbersRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const items = numbersRef.current.querySelectorAll(".stat-num");
+            items.forEach((el) => {
+              const target = parseInt(el.dataset.target, 10);
+              const obj = { val: 0 };
+              animate(obj, {
+                val: target,
+                duration: 2000,
+                easing: "easeOutExpo",
+                round: 1,
+                onUpdate: () => {
+                  el.textContent = formatNum(obj.val) + el.dataset.suffix;
+                },
+              });
+            });
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(numbersRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section id="stats" className="section-space section-dark overflow-hidden">
+      <div className="section-inner">
+        <div className="label mb-6">Dampak</div>
+        <h2 className="display-lg mb-16" style={{ color: "#fafaf9" }}>Cerita kami dalam angka</h2>
+
+        <div ref={numbersRef} className="grid grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
+          {STATS.map((s, i) => (
+            <div key={i} className="stat-card">
+              <div
+                className="stat-num stat-number"
+                data-target={s.value}
+                data-suffix={s.suffix}
+                style={{ color: "#fafaf9" }}
+                suppressHydrationWarning
+              >
+                {formatNum(s.value)}{s.suffix}
+              </div>
+              <p className="mt-2 text-sm" style={{ color: "rgba(250,250,249,0.45)" }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   GALLERY — Immersive Exhibition
+   ══════════════════════════════════════════════════════════ */
+
+function Gallery() {
+  return (
+    <section id="gallery" className="section-space overflow-hidden">
+      <div className="section-inner">
+        <div className="label mb-4">Galeri</div>
+        <h2 className="display-lg mb-16">Momen yang<br />mendefinisikan kami</h2>
+
+        <div className="grid md:grid-cols-2 gap-4 lg:gap-6">
+          {GALLERY_ITEMS.map((item, i) => (
+            <div key={i} className={`gallery-item relative overflow-hidden rounded-2xl group interactive ${i === 0 || i === 3 ? "md:row-span-2" : ""}`}>
+              <div className={`relative ${i === 0 || i === 3 ? "aspect-[3/4]" : "aspect-[4/3]"}`}>
+                <Image src={item.src} alt={item.title} fill className="gallery-img object-cover transition-transform duration-700 group-hover:scale-[1.03]" sizes="(max-width: 768px) 100vw, 50vw" />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 lg:p-8">
+                <span className="label !text-white/60 mb-2">{item.category}</span>
+                <h3 className="text-white font-semibold font-[family-name:var(--font-heading)] text-lg">{item.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   TESTIMONIALS — Editorial Cards
+   ══════════════════════════════════════════════════════════ */
+
+function Testimonials() {
+  const [active, setActive] = useState(0);
+  const quoteRef = useRef(null);
+  const timerRef = useRef(null);
+
+  const goTo = useCallback((idx) => {
+    if (quoteRef.current) {
+      animate(quoteRef.current, { opacity: [1, 0], translateY: [0, -20], duration: 300, easing: "easeInCubic",
+        onComplete: () => { setActive(idx); animate(quoteRef.current, { opacity: [0, 1], translateY: [20, 0], duration: 500, easing: "easeOutCubic" }); },
+      });
+    } else { setActive(idx); }
+  }, []);
+
+  const next = useCallback(() => goTo((active + 1) % TESTIMONIALS.length), [active, goTo]);
+
+  useEffect(() => {
+    timerRef.current = setInterval(next, 6000);
+    return () => clearInterval(timerRef.current);
+  }, [next]);
+
+  const handleDot = (i) => { clearInterval(timerRef.current); goTo(i); timerRef.current = setInterval(() => goTo((p) => (p + 1) % TESTIMONIALS.length), 6000); };
+
+  return (
+    <section className="section-space bg-paper-warm overflow-hidden">
+      <div className="section-inner">
+        <div className="label mb-6">Testimoni</div>
+
+        <div className="max-w-4xl">
+          <div className="quote-mark mb-4">&ldquo;</div>
+          <div ref={quoteRef}>
+            <p className="display-md mb-10 !font-normal !tracking-[-0.02em]" style={{ lineHeight: 1.3 }}>{TESTIMONIALS[active].quote}</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-ink flex items-center justify-center text-white text-sm font-semibold">
+                {TESTIMONIALS[active].name.split(" ").map(n => n[0]).join("")}
+              </div>
+              <div>
+                <p className="font-semibold font-[family-name:var(--font-heading)] text-sm">{TESTIMONIALS[active].name}</p>
+                <p className="text-xs text-ink-muted">{TESTIMONIALS[active].role} · {TESTIMONIALS[active].year}</p>
+              </div>
+            </div>
           </div>
 
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white font-[family-name:var(--font-heading)] mb-6 max-w-4xl mx-auto leading-tight tracking-tight">
-            Become Part of the Next Generation of{" "}
-            <span className="underline decoration-white/30 decoration-4 underline-offset-8">Digital Innovators</span>
+          <div className="flex gap-3 mt-12">
+            {TESTIMONIALS.map((_, i) => (
+              <button key={i} onClick={() => handleDot(i)} aria-label={`Testimoni ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-500 interactive ${i === active ? "w-8 bg-ink" : "w-4 bg-border hover:bg-ink-muted"}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   PARTNERS — Marquee
+   ══════════════════════════════════════════════════════════ */
+
+function Partners() {
+  const trackRef = useRef(null);
+
+  useEffect(() => {
+    if (!trackRef.current) return;
+    animate(trackRef.current, { translateX: ["0%", "-50%"], duration: 25000, easing: "linear", loop: true });
+  }, []);
+
+  const names = ["Google", "Microsoft", "AWS", "GitHub", "Figma", "JetBrains", "Meta", "IBM", "Intel", "NVIDIA", "Oracle", "Cisco"];
+  const doubled = [...names, ...names];
+
+  return (
+    <section className="py-20 border-y border-border overflow-hidden">
+      <div className="section-inner mb-8"><div className="label">Mitra Terpercaya</div></div>
+      <div className="overflow-hidden">
+        <div ref={trackRef} className="marquee-track">
+          {doubled.map((name, i) => (
+            <div key={i} className="partner-item interactive">
+              <span className="text-2xl lg:text-3xl font-semibold font-[family-name:var(--font-heading)] tracking-tight whitespace-nowrap">{name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   FAQ — Clean Accordion
+   ══════════════════════════════════════════════════════════ */
+
+function FAQ() {
+  const [openIdx, setOpenIdx] = useState(null);
+  const answersRef = useRef([]);
+
+  const toggle = (idx) => {
+    const el = answersRef.current[idx];
+    if (!el) return;
+    if (openIdx === idx) {
+      animate(el, { height: [el.scrollHeight, 0], duration: 400, easing: "easeInOutCubic" });
+      setOpenIdx(null);
+    } else {
+      if (openIdx !== null) { const prev = answersRef.current[openIdx]; if (prev) animate(prev, { height: [prev.scrollHeight, 0], duration: 400, easing: "easeInOutCubic" }); }
+      animate(el, { height: [0, el.scrollHeight], duration: 500, easing: "easeInOutCubic" });
+      setOpenIdx(idx);
+    }
+  };
+
+  return (
+    <section id="faq" className="section-space overflow-hidden">
+      <div className="section-inner">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-24">
+          <div className="lg:col-span-4">
+            <div className="label mb-4">FAQ</div>
+            <h2 className="display-lg">Pertanyaan<br />umum</h2>
+          </div>
+          <div className="lg:col-span-8">
+            {FAQS.map((faq, i) => (
+              <div key={i} className={`faq-item border-t border-border ${openIdx === i ? "border-t-yellow/50" : ""} transition-colors`}>
+                <button className="w-full flex items-center justify-between py-6 text-left group interactive" onClick={() => toggle(i)} aria-expanded={openIdx === i}>
+                  <span className="font-semibold font-[family-name:var(--font-heading)] text-base pr-8 group-hover:text-yellow transition-colors">{faq.q}</span>
+                  <span className={`text-xl text-ink-muted transition-transform duration-500 flex-shrink-0 ${openIdx === i ? "rotate-45" : ""}`}>+</span>
+                </button>
+                <div ref={(el) => (answersRef.current[i] = el)} className="accordion-body">
+                  <p className="body-md pb-6 pr-12">{faq.a}</p>
+                </div>
+              </div>
+            ))}
+            <div className="border-t border-border" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   FINAL CTA — Cinematic Ending
+   ══════════════════════════════════════════════════════════ */
+
+function FinalCTA() {
+  return (
+    <section id="cta" className="section-space section-dark relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(234,179,8,0.08) 0%, transparent 70%)" }} />
+
+      <div className="section-inner relative z-10 text-center">
+        <div className="label mb-8 !text-white/40">Bergabunglah</div>
+
+        <div className="mb-10">
+          <h2 className="display-xl mx-auto max-w-5xl" style={{ color: "#fafaf9" }}>
+            <span className="block">Jadilah bagian dari</span>
+            <span className="block">generasi berikutnya</span>
+            <span className="block text-yellow">inovator digital</span>
           </h2>
+        </div>
 
-          <p className="text-lg sm:text-xl text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Take the first step towards an extraordinary journey in technology. Your future starts here.
-          </p>
+        <p className="body-lg mx-auto max-w-lg mb-12 !text-white/50">Perjalananmu di dunia teknologi dimulai di sini. Ambil langkah pertama menuju masa depan yang luar biasa.</p>
 
-          <a
-            href="#"
-            className="inline-flex items-center gap-3 px-10 py-5 bg-white text-primary font-bold text-lg rounded-2xl shadow-2xl shadow-black/20 hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 font-[family-name:var(--font-heading)]"
-          >
-            Join HIMASANTIKA Today
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+        <div>
+          <a href="#" className="btn-editorial !bg-white !text-ink hover:!bg-yellow hover:!text-ink">
+            Gabung HIMASANTIKA
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
         </div>
       </div>
@@ -942,102 +736,55 @@ function FinalCTA() {
   );
 }
 
-/* ── Footer ── */
+/* ══════════════════════════════════════════════════════════
+   FOOTER — Premium Minimal
+   ══════════════════════════════════════════════════════════ */
+
 function Footer() {
   return (
-    <footer id="contact" className="bg-bg-dark text-white/80 pt-20 pb-8 relative overflow-hidden">
-      {/* Gradient top border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
-
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
+    <footer id="contact" className="section-dark pt-20 pb-8 relative overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-px bg-border-dark" />
+      <div className="section-inner">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          {/* About */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/25">H</div>
-              <span className="text-lg font-bold font-[family-name:var(--font-heading)] text-white">HIMASANTIKA</span>
+          <div>
+            <div className="flex items-center gap-2.5 mb-6">
+              <Image src="/icon.jpg" alt="HIMASANTIKA" width={32} height={32} className="rounded-lg object-cover" />
+              <span className="text-sm font-semibold font-[family-name:var(--font-heading)]" style={{ color: "#fafaf9" }}>HIMASANTIKA</span>
             </div>
-            <p className="text-sm text-white/50 leading-relaxed mb-6">
-              Himpunan Mahasiswa Informatika — Empowering future tech leaders through innovation, collaboration, and excellence.
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(250,250,249,0.4)" }}>
+              Himpunan Mahasiswa Informatika — Membentuk pemimpin teknologi masa depan melalui inovasi dan komunitas.
             </p>
-            <div className="flex gap-3">
-              {[
-                { label: "GitHub", icon: <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /> },
-                { label: "Instagram", icon: <><rect x="2" y="2" width="20" height="20" rx="5" strokeWidth="1.5" stroke="currentColor" fill="none" /><circle cx="12" cy="12" r="5" strokeWidth="1.5" stroke="currentColor" fill="none" /><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" /></> },
-                { label: "LinkedIn", icon: <path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14m-.5 15.5v-5.3a3.26 3.26 0 00-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 011.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 001.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 00-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" /> },
-                { label: "Twitter", icon: <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" /> },
-              ].map((s, i) => (
-                <a key={i} href="#" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary/20 hover:border-primary/40 transition-all duration-300" aria-label={s.label}>
-                  <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="currentColor">{s.icon}</svg>
-                </a>
-              ))}
+          </div>
+
+          <div>
+            <h4 className="label mb-6">Navigasi</h4>
+            {["Tentang", "Divisi", "Program", "Galeri", "FAQ"].map((l) => (
+              <a key={l} href={`#${l.toLowerCase()}`} className="block text-sm mb-3 transition-colors duration-300" style={{ color: "rgba(250,250,249,0.4)" }} onMouseEnter={(e) => e.target.style.color = "#fafaf9"} onMouseLeave={(e) => e.target.style.color = "rgba(250,250,249,0.4)"}>{l}</a>
+            ))}
+          </div>
+
+          <div>
+            <h4 className="label mb-6">Kontak</h4>
+            <div className="space-y-3 text-sm" style={{ color: "rgba(250,250,249,0.4)" }}>
+              <p>himasantika@university.ac.id</p>
+              <p>+62 812-3456-7890</p>
+              <p>Fakultas Ilmu Komputer<br />Gedung Universitas, Lantai 3</p>
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h4 className="font-bold text-white font-[family-name:var(--font-heading)] mb-6 text-sm uppercase tracking-wider">Quick Links</h4>
-            <ul className="flex flex-col gap-3">
-              {["About Us", "Divisions", "Programs", "Gallery", "Achievements", "FAQ"].map((link) => (
-                <li key={link}>
-                  <a href={`#${link.toLowerCase().replace(/\s/g, "")}`} className="text-sm text-white/50 hover:text-primary transition-colors duration-300">{link}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="font-bold text-white font-[family-name:var(--font-heading)] mb-6 text-sm uppercase tracking-wider">Contact</h4>
-            <ul className="flex flex-col gap-4">
-              <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                </svg>
-                <span className="text-sm text-white/50">himasantika@university.ac.id</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                <span className="text-sm text-white/50">Faculty of Computer Science, University Building, 3rd Floor</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                </svg>
-                <span className="text-sm text-white/50">+62 812-3456-7890</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 className="font-bold text-white font-[family-name:var(--font-heading)] mb-6 text-sm uppercase tracking-wider">Stay Updated</h4>
-            <p className="text-sm text-white/50 mb-4">Subscribe to our newsletter for the latest updates, events, and opportunities.</p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="your@email.com"
-                className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-primary/50 focus:bg-white/8 transition-all"
-                aria-label="Email address"
-              />
-              <button className="px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-white text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 transition-all">
-                →
-              </button>
-            </div>
+            <h4 className="label mb-6">Media Sosial</h4>
+            {["GitHub", "Instagram", "LinkedIn", "Twitter"].map((s) => (
+              <a key={s} href="#" className="block text-sm mb-3 transition-colors duration-300" style={{ color: "rgba(250,250,249,0.4)" }} onMouseEnter={(e) => e.target.style.color = "#fafaf9"} onMouseLeave={(e) => e.target.style.color = "rgba(250,250,249,0.4)"}>{s} ↗</a>
+            ))}
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-white/8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} HIMASANTIKA. All rights reserved.
-          </p>
+        <div className="border-t border-border-dark pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs" style={{ color: "rgba(250,250,249,0.25)" }}>© {new Date().getFullYear()} HIMASANTIKA. Hak cipta dilindungi.</p>
           <div className="flex gap-6">
-            {["Privacy Policy", "Terms of Service", "Code of Conduct"].map((link) => (
-              <a key={link} href="#" className="text-xs text-white/30 hover:text-white/60 transition-colors">{link}</a>
+            {["Kebijakan Privasi", "Syarat & Ketentuan", "Kode Etik"].map((l) => (
+              <a key={l} href="#" className="text-xs transition-colors" style={{ color: "rgba(250,250,249,0.25)" }} onMouseEnter={(e) => e.target.style.color = "rgba(250,250,249,0.5)"} onMouseLeave={(e) => e.target.style.color = "rgba(250,250,249,0.25)"}>{l}</a>
             ))}
           </div>
         </div>
@@ -1046,17 +793,18 @@ function Footer() {
   );
 }
 
-/* ════════════════════════════════════════════════════════
-   PAGE
-   ════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   PAGE COMPOSITION
+   ══════════════════════════════════════════════════════════ */
 
 export default function Home() {
   return (
     <>
+      <MouseFollower />
       <Navbar />
       <Hero />
       <About />
-      <WhySection />
+      <Why />
       <Divisions />
       <Programs />
       <Statistics />
