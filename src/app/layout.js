@@ -17,9 +17,14 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "HIMASANTIKA — Membentuk Pemimpin Teknologi Masa Depan",
+  title: "Himpunan Mahasiswa Jurusan Teknik Informatika di Universitas Muhammadiyah Cirebon",
   description:
-    "Himpunan Mahasiswa Informatika (HIMASANTIKA) — Komunitas teknologi mahasiswa unggulan yang mendorong inovasi, kepemimpinan, dan keunggulan digital.",
+    "Himpunan Mahasiswa Jurusan Teknik Informatika (HIMASANTIKA) Universitas Muhammadiyah Cirebon — Wadah aspirasi, inovasi, kepemimpinan, dan pengembangan potensi keahlian mahasiswa S1 Teknik Informatika UMC.",
+  icons: {
+    icon: "/logos/logo-himasantika-umc.png",
+    shortcut: "/logos/logo-himasantika-umc.png",
+    apple: "/logos/logo-himasantika-umc.png",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -30,9 +35,9 @@ export default function RootLayout({ children }) {
     >
       <body>
         <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#2563EB]/[0.04] blur-[100px] animate-blob" />
-          <div className="absolute top-[30%] right-[-10%] w-[55vw] h-[55vw] rounded-full bg-[#EAB308]/[0.03] blur-[120px] animate-blob animation-delay-2000" />
-          <div className="absolute bottom-[-10%] left-[10%] w-[60vw] h-[60vw] rounded-full bg-[#38BDF8]/[0.04] blur-[100px] animate-blob animation-delay-4000" />
+          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#101869]/[0.05] blur-[120px] animate-blob" />
+          <div className="absolute top-[35%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#C3503B]/[0.04] blur-[120px] animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-10%] left-[10%] w-[55vw] h-[55vw] rounded-full bg-[#101869]/[0.03] blur-[120px] animate-blob animation-delay-4000" />
         </div>
         <LenisProvider>{children}</LenisProvider>
       </body>
