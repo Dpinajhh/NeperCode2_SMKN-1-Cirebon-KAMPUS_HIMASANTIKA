@@ -1,4 +1,4 @@
-import { Poppins, Inter } from "next/font/google";
+import { Poppins, Inter, Roboto_Flex } from "next/font/google";
 import { LenisProvider } from "./components/LenisProvider";
 import "./globals.css";
 
@@ -13,6 +13,13 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
+  display: "swap",
+});
+
+const robotoFlex = Roboto_Flex({
+  variable: "--font-roboto-flex",
+  subsets: ["latin"],
+  axes: ["wght", "opsz"],
   display: "swap",
 });
 
@@ -31,7 +38,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="id"
-      className={`${poppins.variable} ${inter.variable} antialiased`}
+      className={`${poppins.variable} ${inter.variable} ${robotoFlex.variable} antialiased`}
     >
       <body>
         <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">

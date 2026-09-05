@@ -1,85 +1,104 @@
 "use client";
 
-import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const DriftWall = dynamic(() => import("./reactbits/DriftWall"), { ssr: false });
+const MaskedHeading = dynamic(() => import("./reactbits/MaskedHeading"), { ssr: false });
 
 const GALLERY_PHOTOS = [
   {
-    src: "/images/kegiatan/Mengenal Organisasi Teknik Informatika 2025.jpg",
-    title: "Orientasi Mahasiswa Informatika 2025",
-    tag: "Kaderisasi",
+    image: "/images/kegiatan/Foto Bersama Menyambut Bulan Suci Ramadhan.png",
+    title: "Foto Bersama Menyambut Bulan Suci Ramadhan",
   },
   {
-    src: "/images/kegiatan/Studi Banding HIMASANTIKA UMC X HIMA-TI UNIKU-1.jpg",
-    title: "Studi Banding HIMASANTIKA X HIMA-TI UNIKU",
-    tag: "Studi Banding",
+    image: "/images/kegiatan/Bukber dan Family Gathering-2.jpg",
+    title: "Bukber & Family Gathering Himasantika - Sesi 2",
   },
   {
-    src: "/images/kegiatan/Studi Banding HIMASANTIKA UMC X HIMA-TI UNIKU-2.jpg",
-    title: "Diskusi & Sharing Session Hima-TI",
-    tag: "Studi Banding",
+    image: "/images/kegiatan/Bukber dan Family Gathering-1.jpg",
+    title: "Bukber & Family Gathering Himasantika - Sesi 1",
   },
   {
-    src: "/images/kegiatan/Studi Banding HIMASANTIKA UMC X HIMA-TI UNIKU-3.jpg",
-    title: "Penyerahan Cenderamata Inter-Kampus",
-    tag: "Kolaborasi",
+    image: "/images/kegiatan/Studi Banding HIMASANTIKA UMC X HIMA-TI UNIKU-2.jpg",
+    title: "Studi Banding Himasantika X Hima-Ti Uniku",
   },
   {
-    src: "/images/kegiatan/Bukber dan Family Gathering-1.jpg",
-    title: "Family Gathering & Bukber HIMASANTIKA",
-    tag: "Kebersamaan",
+    image: "/images/kegiatan/Mengenal Organisasi Teknik Informatika 2025.jpg",
+    title: "Mengenal Organisasi Teknik Informatika 2025",
   },
   {
-    src: "/images/kegiatan/Bukber dan Family Gathering-2.jpg",
-    title: "Silaturahmi Demisioner & Pengurus",
-    tag: "Kebersamaan",
+    image: "/images/kegiatan/foto bersama umc.png",
+    title: "Keluarga Besar Himasantika Umc",
+  },
+  {
+    image: "/images/kegiatan/Kajian Public Speaking HIMASANTIKA 2025.png",
+    title: "Kajian Public Speaking Himasantika 2025",
+  },
+  {
+    image: "/images/kegiatan/Open Recruitmen HIMASANTIKA.png",
+    title: "Open Recruitment Himasantika",
+  },
+  {
+    image: "/images/kegiatan/Kajian Public Speaking HIMASANTIKA 2025 - 2.png",
+    title: "Kajian Public Speaking Sesi 2",
   },
 ];
 
 export default function Gallery() {
   return (
-    <section id="galeri" className="py-24 lg:py-32 bg-[#F9F9FB] relative">
+    <section id="galeri" className="py-24 lg:py-32 bg-[#F9F9FB] relative overflow-hidden">
       <div className="section-inner">
         {/* Section Header */}
-        <div className="max-w-3xl mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-[#C3503B] block mb-3">
-            GALERI FOTO
-          </span>
-          <h2 className="display-lg text-[#101869] mb-4">
-            Dokumentasi Kegiatan
-          </h2>
+        <div className="max-w-3xl mb-12">
+          <div className="mb-4 inline-block max-w-full">
+            <MaskedHeading
+              text="Momen Kebersamaan"
+              src="/images/kegiatan/foto bersama umc.png"
+              align="left"
+              fillScale={1.35}
+              parallax={24}
+              drift={14}
+              brightness={1.05}
+              saturation={1.1}
+              reveal="rise"
+              trigger="view"
+              weight={800}
+              textScale={0.075}
+              className="display-lg text-[#101869]"
+            />
+          </div>
           <p className="text-base sm:text-lg text-[#525264] leading-relaxed">
-            Momen kebersamaan, kolaborasi, dan jejak langkah HIMASANTIKA UMC.
+            Potret kegiatan akademik, sosial, dan kekeluargaan Himasantika.
           </p>
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {GALLERY_PHOTOS.map((item, idx) => (
-            <div
-              key={idx}
-              className="group relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-[#E2E8F0] bg-gray-200 cursor-pointer"
-            >
-              <Image
-                src={item.src}
-                alt={item.title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#101869]/80 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
-              
-              <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end text-white">
-                <span className="text-[10px] font-bold tracking-widest uppercase text-[#C3503B] mb-1">
-                  {item.tag}
-                </span>
-                <h3 className="text-sm sm:text-base font-bold leading-tight">
-                  {item.title}
-                </h3>
-              </div>
-            </div>
-          ))}
+        {/* Drift Wall Container */}
+        <div className="w-full h-[540px] sm:h-[640px] rounded-[32px] overflow-hidden border border-[#E2E8F0]/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white relative">
+          <DriftWall
+            items={GALLERY_PHOTOS}
+            columns={4}
+            tileWidth={260}
+            tileHeight={170}
+            gap={20}
+            radius={18}
+            tilt={14}
+            turn={-12}
+            perspective={1100}
+            depth={100}
+            speed={36}
+            direction="up"
+            variance={0.42}
+            parallax={0.5}
+            lift={54}
+            fade={0.5}
+            dim={0.72}
+            grayscale={false}
+            overlayColor="#101869"
+            pauseOnHover={false}
+          />
         </div>
       </div>
     </section>
   );
 }
+

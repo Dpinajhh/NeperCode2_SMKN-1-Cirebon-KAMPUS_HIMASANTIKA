@@ -6,7 +6,8 @@ import About from "./components/About";
 import Structure from "./components/Structure";
 import Activities from "./components/Activities";
 import Gallery from "./components/Gallery";
-import ContactFooter from "./components/ContactFooter";
+import Contact from "./components/Contact";
+import Footer from "./components/Footer";
 
 export default function Home() {
   return (
@@ -17,7 +18,8 @@ export default function Home() {
       <Structure />
       <Activities />
       <Gallery />
-      <ContactFooter />
+      <Contact />
+      <Footer />
     </main>
   );
 }

@@ -28,7 +28,7 @@ export default function Hero() {
         {/* ReactBits WarpText Title — white on dark silk */}
         <div className="w-full flex justify-center mb-6">
           <WarpText
-            text={`Himpunan Mahasiswa\nTeknik Informatika UMC`}
+            text={`Himpunan Mahasiswa\nTeknik Informatika Umc`}
             color="#FFFFFF"
             warpStrength={0.08}
             warpScale={1.6}

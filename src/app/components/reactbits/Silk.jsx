@@ -1,8 +1,7 @@
 "use client";
 
-/* eslint-disable react/no-unknown-property */
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { forwardRef, useRef, useMemo, useLayoutEffect, useEffect } from 'react';
+import { forwardRef, useRef, useMemo, useLayoutEffect, useEffect, useState } from 'react';
 import { Color } from 'three';
 
 const hexToNormalizedRGB = hex => {
@@ -84,32 +83,11 @@ if (uLightMode > 0.5) {
 }
 `;
 
-const SilkPlane = forwardRef(function SilkPlane({ uniforms }, ref) {
+const SilkPlane = forwardRef(function SilkPlane(
+  { speed, scale, color, noiseIntensity, rotation, lightMode },
+  ref
+) {
   const { viewport } = useThree();
-
-  useLayoutEffect(() => {
-    if (ref.current) {
-      ref.current.scale.set(viewport.width, viewport.height, 1);
-    }
-  }, [ref, viewport]);
-
-  useFrame((_, delta) => {
-    if (ref.current && ref.current.material && ref.current.material.uniforms) {
-      ref.current.material.uniforms.uTime.value += 0.1 * delta;
-    }
-  });
-
-  return (
-    <mesh ref={ref}>
-      <planeGeometry args={[1, 1, 1, 1]} />
-      <shaderMaterial uniforms={uniforms} vertexShader={vertexShader} fragmentShader={fragmentShader} />
-    </mesh>
-  );
-});
-SilkPlane.displayName = 'SilkPlane';
-
-const Silk = ({ speed = 5, scale = 1, color = '#101869', noiseIntensity = 1.5, rotation = 0, lightMode = false }) => {
-  const meshRef = useRef();
 
   const uniforms = useMemo(
     () => ({
@@ -125,19 +103,71 @@ const Silk = ({ speed = 5, scale = 1, color = '#101869', noiseIntensity = 1.5, r
     []
   );
 
-  useEffect(() => {
-    uniforms.uSpeed.value = speed;
-    uniforms.uScale.value = scale;
-    uniforms.uNoiseIntensity.value = noiseIntensity;
-    uniforms.uColor.value.setRGB(...hexToNormalizedRGB(color));
-    uniforms.uRotation.value = rotation;
-    uniforms.uLightMode.value = lightMode ? 1 : 0;
-  }, [speed, scale, noiseIntensity, color, rotation, lightMode, uniforms]);
+  useLayoutEffect(() => {
+    if (ref.current) {
+      ref.current.scale.set(viewport.width * 1.05, viewport.height * 1.05, 1);
+    }
+  }, [ref, viewport]);
+
+  useFrame((_, delta) => {
+    if (ref.current && ref.current.material && ref.current.material.uniforms) {
+      const u = ref.current.material.uniforms;
+      u.uTime.value += 0.1 * delta;
+      u.uSpeed.value = speed;
+      u.uScale.value = scale;
+      u.uNoiseIntensity.value = noiseIntensity;
+      u.uColor.value.setRGB(...hexToNormalizedRGB(color));
+      u.uRotation.value = rotation;
+      u.uLightMode.value = lightMode ? 1 : 0;
+    }
+  });
 
   return (
-    <div style={{ position: 'absolute', top: '-1px', left: '-1px', right: '-1px', bottom: '-1px', pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-      <Canvas dpr={[1, 2]} frameloop="always" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'block' }}>
-        <SilkPlane ref={meshRef} uniforms={uniforms} />
+    <mesh ref={ref}>
+      <planeGeometry args={[1, 1, 1, 1]} />
+      <shaderMaterial uniforms={uniforms} vertexShader={vertexShader} fragmentShader={fragmentShader} />
+    </mesh>
+  );
+});
+SilkPlane.displayName = 'SilkPlane';
+
+const Silk = ({ speed = 5, scale = 1, color = '#101869', noiseIntensity = 1.5, rotation = 0, lightMode = false }) => {
+  const meshRef = useRef();
+  const containerRef = useRef(null);
+  const [inView, setInView] = useState(true);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { rootMargin: '100px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+      <Canvas
+        dpr={[1, 1.5]}
+        frameloop={inView ? 'always' : 'never'}
+        style={{ display: 'block', width: '100%', height: '100%' }}
+      >
+        {inView && (
+          <SilkPlane
+            ref={meshRef}
+            speed={speed}
+            scale={scale}
+            color={color}
+            noiseIntensity={noiseIntensity}
+            rotation={rotation}
+            lightMode={lightMode}
+          />
+        )}
       </Canvas>
     </div>
   );

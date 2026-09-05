@@ -1,36 +1,158 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Portal Web Resmi HIMASANTIKA UMC
 
-## Getting Started
+Portal web dan profil organisasi resmi **Himpunan Mahasiswa Teknik Informatika (HIMASANTIKA)**, Fakultas Teknik, Universitas Muhammadiyah Cirebon.
 
-First, run the development server:
+Dirancang dan dikembangkan oleh **NeperCode2**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Ringkasan Teknis
+
+Aplikasi ini dibangun menggunakan arsitektur web modern berbasis **Next.js 16 (App Router)**, **React 19**, dan **Tailwind CSS v4**. Sistem mengintegrasikan *pipeline* grafis interaktif berbasis WebGL (**Three.js** dan **OGL**), modul animasi fisika (**GSAP** dan **Motion**), serta mesin *smooth scrolling* perangkat keras (**Lenis**) yang dioptimalkan untuk efisiensi beban komputasi CPU dan GPU.
+
+---
+
+## Modul Arsitektur dan Pemetaan Rute
+
+| Modul | Jalur Rute | Komponen Grafis & Interaktif | Deskripsi Fungsional |
+|---|---|---|---|
+| **Beranda** | `/` | `Silk` (Three.js WebGL) + `WarpText` + `ScrollReveal` | Bagian utama (*hero section*) dengan simulasi kain sutra WebGL interaktif, distorsi tipografi reaktif pointer, dan transisi teks berbasis posisi gulir. |
+| **Tentang** | `/tentang` | `TrueFocus` + `BlurText` + `ProfileCard` (3D Tilt) | Informasi profil organisasi, visi, status lembaga eksekutif, komitmen Catur Dharma Perguruan Tinggi, dan sekretariat. |
+| **Struktur** | `/struktur` | `VariableProximity` + `ChromaGrid` + `MagicBento` | Visualisasi hierarki Badan Pengurus Harian (BPH) dan 8 Lembaga/Departemen dengan efek pencahayaan partikel radial. |
+| **Kegiatan** | `/kegiatan` | `DecryptedText` + `TargetCursor` | Rangkaian program kerja unggulan, kaderisasi mahasiswa, dan kegiatan akademik dengan pelacak kursor visual. |
+| **Galeri** | `/galeri` | `MaskedHeading` (GSAP) + `DriftWall` (3D Perspective) | Galeri dokumentasi melayang 3D multi-kolom dengan tipografi judul bertekstur foto (*image-masked*). |
+| **Kontak** | `/kontak` | `SplitFlapText` + `SpecularButton` (OGL Shader) | Kartu kanal komunikasi resmi (Gmail, WhatsApp, Instagram, TikTok), peta lokasi kampus terintegrasi, dan tombol *specular shader*. |
+
+---
+
+## Tumpukan Teknologi (Tech Stack)
+
+### 1. Kerangka Kerja Utama & Lingkungan Eksekusi
+- **Kerangka Kerja**: Next.js 16 (App Router & Turbopack Bundler)
+- **Pustaka Antarmuka**: React 19
+- **Arsitektur Gaya**: Tailwind CSS v4
+
+### 2. Grafis, Shader WebGL & Animasi
+- **Ekosistem Three.js**: `three`, `@react-three/fiber`, `@react-three/drei` (Simulasi WebGL latar beranda)
+- **Mesin Shader Ringan**: `ogl` (Shader WebGL untuk efek refleksi cahaya tombol)
+- **Mesin Animasi & Fisika**: `gsap`, `motion` (Framer Motion), `animejs`
+- **Akselerasi Pengguliran**: `lenis` (Mesin pengguliran mulus berbasis perangkat keras)
+
+### 3. Tipografi & Aset
+- Google Fonts (`Poppins`, `Inter`, `Roboto Flex`) dimuat melalui modul `@next/font`
+
+---
+
+## Token Sistem Desain
+
+Aplikasi mengimplementasikan palet warna resmi organisasi secara konsisten:
+
+- **Navy (Warna Utama)**: `#101869`
+- **Rust (Warna Aksen & Aksi)**: `#C3503B`
+- **Paper Light (Latar Belakang Terang)**: `#F9F9FB`
+- **Paper Dark / Ink (Teks & Elemen Gelap)**: `#1A1A24`
+- **Border Subtle (Garis Batas Halus)**: `#E2E8F0`
+
+---
+
+## Struktur Direktori Proyek
+
+```text
+NeperCode2/
+├── public/
+│   ├── images/
+│   │   └── kegiatan/          # Berkas aset foto dokumentasi kegiatan
+│   └── logos/
+│       ├── logo-divisi/       # Berkas lambang resmi lembaga & departemen
+│       ├── logo-himasantika-umc.png
+│       ├── gmail.svg
+│       ├── whatsapp.svg
+│       └── google-maps.svg
+├── src/
+│   └── app/
+│       ├── components/
+│       │   ├── reactbits/     # Pustaka komponen animasi & WebGL internal
+│       │   ├── About.js       # Komponen modul profil organisasi
+│       │   ├── Activities.js  # Komponen modul program kerja & kegiatan
+│       │   ├── Contact.js     # Komponen modul kanal kontak & peta
+│       │   ├── Footer.js      # Komponen navigasi bawah & hak cipta
+│       │   ├── Gallery.js     # Komponen modul galeri dokumentasi 3D
+│       │   ├── Hero.js        # Komponen modul beranda WebGL utama
+│       │   ├── LenisProvider.js # Modul penyedia smooth scroll global
+│       │   ├── Navbar.js      # Komponen navigasi atas dengan clean routing
+│       │   └── Structure.js   # Komponen modul struktur kepengurusan
+│       ├── galeri/page.js     # Titik akhir rute mandiri: /galeri
+│       ├── kegiatan/page.js   # Titik akhir rute mandiri: /kegiatan
+│       ├── kontak/page.js     # Titik akhir rute mandiri: /kontak
+│       ├── struktur/page.js   # Titik akhir rute mandiri: /struktur
+│       ├── tentang/page.js    # Titik akhir rute mandiri: /tentang
+│       ├── globals.css        # Konfigurasi Tailwind CSS v4 & reset viewport
+│       ├── layout.js          # Tata letak HTML root & konfigurasi metadata
+│       └── page.js            # Titik akhir rute beranda utama: /
+├── package.json
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Panduan Instalasi dan Penggunaan
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prasyarat Sistem
+- **Node.js**: Versi `18.18.0` atau yang lebih baru (disarankan Node.js 20 LTS)
+- **Manajer Paket**: `npm`, `pnpm`, `yarn`, atau `bun`
 
-## Learn More
+### Langkah Pemasangan
 
-To learn more about Next.js, take a look at the following resources:
+1. Klon repositori dan masuk ke direktori utama proyek:
+```bash
+cd NeperCode2
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Pasang seluruh dependensi proyek:
+```bash
+npm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Menjalankan Server Pengembangan
 
-## Deploy on Vercel
+Jalankan server lokal dengan fitur *Hot Module Replacement* (HMR):
+```bash
+npm run dev
+```
+Buka peramban web dan akses alamat: `http://localhost:3000`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Kompilasi untuk Lingkungan Produksi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Untuk mengompilasi dan mengoptimalkan aplikasi sebelum diterapkan ke server produksi:
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## Rekayasa dan Optimasi Performa
+
+1. **Penangguhan Render WebGL Berbasis Viewport**:
+   - Komponen WebGL dan animasi kontinu pada `Silk`, `DriftWall`, dan `SpecularButton` dilengkapi pengawas `IntersectionObserver` yang secara otomatis menghentikan (*pause*) siklus frame saat elemen berada di luar layar, menekan penggunaan daya komputasi GPU hingga mendekati 0% saat tidak aktif.
+2. **Pencegahan Forced Reflow / Layout Thrashing**:
+   - Menghilangkan kalkulasi ulang tata letak DOM yang berulang pada interaksi kursor dengan menerapkan *coordinate caching* dan penjadwalan pembaruan visual melalui `requestAnimationFrame`.
+3. **Sinkronisasi Rute Bersih (Clean Route Navigation)**:
+   - Sistem navigasi memanfaatkan HTML5 History API (`window.history.pushState`) terintegrasi dengan transisi gulir halus, menyediakan format URL bersih tanpa tanda pagar (`/tentang`, `/struktur`, `/kontak`) serta mendukung akses tautan langsung.
+4. **Perataan Tampilan Edge-to-Edge**:
+   - Menghapus celah bawaan *scrollbar gutter* peramban pada tingkat global untuk memastikan tampilan kanvas mengisi 100% lebar layar secara presisi tanpa garis sisa.
+
+---
+
+## Pengembang dan Atribusi
+
+- **Pengembang (Developer)**: **NeperCode2**
+- **Klien / Organisasi**: Himpunan Mahasiswa Teknik Informatika (HIMASANTIKA), Universitas Muhammadiyah Cirebon
+- **Alamat Sekretariat**: Jl. Fatahillah No. 40 Watubelah, Sumber, Kabupaten Cirebon, Jawa Barat 45611
+- **Kanal Surel Resmi**: `himasantika@umc.ac.id`
+
+---
+
+## Hak Cipta dan Lisensi
+
+Hak Cipta (c) 2026 HIMASANTIKA Universitas Muhammadiyah Cirebon & NeperCode2. Seluruh hak cipta dilindungi undang-undang.

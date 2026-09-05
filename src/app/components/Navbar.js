@@ -2,24 +2,62 @@
 
 import { useState, useEffect } from "react";
 
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+
 const NAV_LINKS = [
-  { label: "Beranda", href: "#beranda" },
-  { label: "Tentang", href: "#tentang" },
-  { label: "Struktur", href: "#struktur" },
-  { label: "Kegiatan", href: "#kegiatan" },
-  { label: "Galeri", href: "#galeri" },
-  { label: "Kontak", href: "#kontak" },
+  { label: "Beranda", path: "/", targetId: "beranda" },
+  { label: "Tentang", path: "/tentang", targetId: "tentang" },
+  { label: "Struktur", path: "/struktur", targetId: "struktur" },
+  { label: "Kegiatan", path: "/kegiatan", targetId: "kegiatan" },
+  { label: "Galeri", path: "/galeri", targetId: "galeri" },
+  { label: "Kontak", path: "/kontak", targetId: "kontak" },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Auto-scroll when loading route directly (e.g. /tentang, /kontak)
+  useEffect(() => {
+    if (pathname && pathname !== "/") {
+      const match = NAV_LINKS.find((link) => link.path === pathname);
+      if (match) {
+        const timer = setTimeout(() => {
+          const el = document.getElementById(match.targetId);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 350);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [pathname]);
+
+  // Handle smooth scroll when navigating to current page sections
+  const handleNavClick = (e, link) => {
+    e.preventDefault();
+    setMobileOpen(false);
+
+    // Update browser URL to clean path without reload
+    window.history.pushState(null, "", link.path);
+
+    // Scroll to the target element
+    const el = document.getElementById(link.targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      router.push(link.path);
+    }
+  };
 
   return (
     <>
@@ -32,11 +70,15 @@ export default function Navbar() {
       >
         <div className="section-inner flex items-center justify-between h-16 lg:h-[68px]">
           {/* Brand */}
-          <a href="#beranda" className="flex items-center gap-2.5 shrink-0">
+          <Link
+            href="/"
+            onClick={(e) => handleNavClick(e, { path: "/", targetId: "beranda" })}
+            className="flex items-center gap-2.5 shrink-0"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logos/logo-himasantika-umc.png"
-              alt="Logo HIMASANTIKA UMC"
+              alt="Logo Himasantika Umc"
               width={34}
               height={34}
               className="object-contain rounded-md"
@@ -47,24 +89,25 @@ export default function Navbar() {
                   scrolled ? "text-[#101869]" : "text-white"
                 }`}
               >
-                HIMASANTIKA
+                Himasantika
               </span>
               <span
-                className={`text-[9px] font-semibold tracking-widest uppercase mt-0.5 transition-colors duration-300 ${
+                className={`text-[9px] font-semibold tracking-wider mt-0.5 transition-colors duration-300 ${
                   scrolled ? "text-[#C3503B]" : "text-[#f4a58a]"
                 }`}
               >
-                UMC CIREBON
+                Umc Cirebon
               </span>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
+              <Link
+                key={link.path}
+                href={link.path}
+                onClick={(e) => handleNavClick(e, link)}
                 className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${
                   scrolled
                     ? "text-[#1A1A24]/70 hover:text-[#101869] hover:bg-[#101869]/[0.07]"
@@ -72,14 +115,15 @@ export default function Navbar() {
                 }`}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
           {/* Right */}
           <div className="flex items-center gap-2">
-            <a
-              href="#kontak"
+            <Link
+              href="/kontak"
+              onClick={(e) => handleNavClick(e, { path: "/kontak", targetId: "kontak" })}
               className={`hidden sm:inline-flex items-center px-5 py-2.5 rounded-full text-[12px] font-semibold tracking-wide transition-all duration-300 ${
                 scrolled
                   ? "bg-[#101869] text-white hover:bg-[#C3503B] shadow-sm"
@@ -87,7 +131,7 @@ export default function Navbar() {
               }`}
             >
               Hubungi Kami
-            </a>
+            </Link>
 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -115,22 +159,22 @@ export default function Navbar() {
         <div className="fixed top-16 left-0 right-0 z-40 bg-white/96 backdrop-blur-xl border-b border-gray-100 shadow-xl px-4 py-4">
           <nav className="section-inner flex flex-col gap-1">
             {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
+              <Link
+                key={link.path}
+                href={link.path}
+                onClick={(e) => handleNavClick(e, link)}
                 className="px-4 py-3 rounded-xl text-[14px] font-medium text-[#1A1A24]/75 hover:text-[#101869] hover:bg-[#101869]/[0.06] transition-colors"
-                onClick={() => setMobileOpen(false)}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#kontak"
+            <Link
+              href="/kontak"
+              onClick={(e) => handleNavClick(e, { path: "/kontak", targetId: "kontak" })}
               className="mt-1 px-4 py-3 rounded-xl text-[14px] font-semibold text-white bg-[#101869] text-center hover:bg-[#C3503B] transition-colors"
-              onClick={() => setMobileOpen(false)}
             >
               Hubungi Kami
-            </a>
+            </Link>
           </nav>
         </div>
       )}
